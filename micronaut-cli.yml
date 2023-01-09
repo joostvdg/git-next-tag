@@ -1,0 +1,6 @@
+applicationType: cli
+defaultPackage: kearos.net
+testFramework: junit
+sourceLanguage: java
+buildTool: maven
+features: [annotation-api, app-name, graalvm, jackson-databind, java, jib, junit, logback, maven, picocli, picocli-java-application, picocli-junit, readme, shade, yaml]
