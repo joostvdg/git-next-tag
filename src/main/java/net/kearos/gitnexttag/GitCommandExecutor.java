@@ -14,7 +14,7 @@ public class GitCommandExecutor {
 
     private static final Logger logger  = LoggerFactory.getLogger(GitCommandExecutor.class);
     // https://www.baeldung.com/run-shell-command-in-java
-    public String executeGitCommand(GitCommand gitCommand) {
+    public String executeGitCommand(GitCommand gitCommand, boolean verbose) {
 //        boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
         var executionPath = new File(gitCommand.path());
         ProcessBuilder builder = new ProcessBuilder();
@@ -27,14 +27,32 @@ public class GitCommandExecutor {
             throw new RuntimeException(e);
         }
 
+        logger.info("Process Info: {}", process.info());
+
         StringBuilder output = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        StringBuilder errorOutput = new StringBuilder();
+        BufferedReader reader = process.inputReader();
+        BufferedReader errorReader = process.errorReader();
+        String lastFoundTag = "";
 
         try {
             String line;
             while ((line = reader.readLine()) != null) {
                 System.out.println(line);
                 output.append(line + "\n");
+                if (!line.isEmpty()) {
+                    lastFoundTag = line;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            String line;
+            while ((line = errorReader.readLine()) != null) {
+                System.out.println(line);
+                errorOutput.append(line + "\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -47,13 +65,17 @@ public class GitCommandExecutor {
             throw new RuntimeException(e);
         }
 
-        logger.info("Output: \"{}\"", output.toString());
-        if (exitCode == 0) {
-            logger.info("Success!");
-        } else {
-            logger.error("Failed to parse git response: {}", exitCode);
+        if (verbose) {
+            logger.info("Last Found Tag: \"{}\"", lastFoundTag);
+            logger.info("Output: \"{}\"", output.toString());
+            logger.info("ErrorOutput: \"{}\"", errorOutput.toString());
+            if (exitCode == 0) {
+                logger.info("Success!");
+            } else {
+                logger.error("Failed to parse git response: {}", exitCode);
+            }
         }
 
-        return "0.1.0";
+        return lastFoundTag;
     }
 }

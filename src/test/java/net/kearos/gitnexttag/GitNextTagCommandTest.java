@@ -18,11 +18,11 @@ public class GitNextTagCommandTest {
         System.setOut(new PrintStream(baos));
 
         try (ApplicationContext ctx = ApplicationContext.run(Environment.CLI, Environment.TEST)) {
-            String[] args = new String[] { "-v", "-b", "0.1" };
+            String[] args = new String[] { "-v", "-b", "v0.1.*" };
             PicocliRunner.run(GitNextTagCommand.class, ctx, args);
 
             // git-next-tag
-            assertTrue(baos.toString().contains("next git tag: 0.1."));
+            assertTrue(baos.toString().contains("next git tag: v0.1."));
         }
     }
 }
