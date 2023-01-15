@@ -18,7 +18,7 @@
     <jdk.version>17</jdk.version>
     <release.version>17</release.version>
     <micronaut.version>3.8.0</micronaut.version>
-    <exec.mainClass>kearos.net.GitNextTagCommand</exec.mainClass>
+    <exec.mainClass>net.kearos.gitnexttag.GitNextTagCommand</exec.mainClass>
   </properties>
 
   <repositories>
@@ -108,7 +108,7 @@
             </path>
           </annotationProcessorPaths>
           <compilerArgs>
-            <arg>-Amicronaut.processing.group=kearos.net</arg>
+            <arg>-Amicronaut.processing.group=net.kearos.gitnexttag</arg>
             <arg>-Amicronaut.processing.module=git-next-tag</arg>
           </compilerArgs>
         </configuration>
