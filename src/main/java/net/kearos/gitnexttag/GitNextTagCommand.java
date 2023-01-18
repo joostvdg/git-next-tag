@@ -1,5 +1,6 @@
 package net.kearos.gitnexttag;
 
+import ch.qos.logback.classic.Level;
 import io.micronaut.configuration.picocli.PicocliRunner;
 
 import org.slf4j.Logger;
@@ -38,11 +39,16 @@ public class GitNextTagCommand implements Runnable {
 
     public void run() {
         if (verbose) {
-            logger.info("baseTag supplied: {}", baseTag);
-            if (alternativePath != null && !alternativePath.isEmpty()) {
-                logger.info("execution path supplied: {}", alternativePath);
-            }
+            ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+            rootLogger.setLevel(Level.toLevel("info"));
         }
+
+
+        logger.info("baseTag supplied: {}", baseTag);
+        if (alternativePath != null && !alternativePath.isEmpty()) {
+            logger.info("execution path supplied: {}", alternativePath);
+        }
+
         var currentPath = Paths.get("")
                 .toAbsolutePath()
                 .toString();
@@ -56,16 +62,15 @@ public class GitNextTagCommand implements Runnable {
         var gitCommandExecutor = new GitCommandExecutor();
         var foundTag = gitCommandExecutor.executeGitCommand(gitCommand, verbose);
         var nextGitTag = determineNextTag(baseTag, foundTag, verbose);
-        if (verbose) {
-            logger.info("next git tag: {}", nextGitTag);
-        }
+
+        logger.info("next git tag: {}", nextGitTag);
+        System.out.println(nextGitTag);
     }
 
     private String determineNextTag(String baseTag, String foundTag, boolean verbose) {
-        if (verbose) {
-            logger.info("determineNextTag - baseTag: \"{}\", foundTag: \"{}\"",
-                    baseTag, foundTag);
-        }
+        logger.info("determineNextTag - baseTag: \"{}\", foundTag: \"{}\"",
+              baseTag, foundTag);
+
         var tag = baseTag.replace("*", "");
 
         // either foundTag is empty, so we return `baseTag` + 0

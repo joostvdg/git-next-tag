@@ -6,9 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.concurrent.*;
-import java.util.function.Consumer;
 
 public class GitCommandExecutor {
 
@@ -38,7 +35,7 @@ public class GitCommandExecutor {
         try {
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                logger.info(line);
                 output.append(line + "\n");
                 if (!line.isEmpty()) {
                     lastFoundTag = line;
@@ -51,7 +48,7 @@ public class GitCommandExecutor {
         try {
             String line;
             while ((line = errorReader.readLine()) != null) {
-                System.out.println(line);
+                logger.warn(line);
                 errorOutput.append(line + "\n");
             }
         } catch (IOException e) {
