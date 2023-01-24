@@ -4,8 +4,8 @@ import io.micronaut.configuration.picocli.PicocliRunner;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.env.Environment;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.*;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -23,6 +23,20 @@ public class GitNextTagCommandTest {
 
             // git-next-tag
             assertTrue(baos.toString().contains("next git tag: v0.1."));
+        }
+    }
+
+    @Test
+    public void testWithOutputPath() throws Exception {
+        try (ApplicationContext ctx = ApplicationContext.run(Environment.CLI, Environment.TEST)) {
+            File tmpFile = File.createTempFile("test", ".tmp");
+            System.out.println("Temp file for testing: " + tmpFile.getAbsolutePath());
+            String[] args = new String[] { "-v", "-b", "v0.1.*", "-o", tmpFile.getAbsolutePath() };
+            PicocliRunner.run(GitNextTagCommand.class, ctx, args);
+
+            BufferedReader reader = new BufferedReader(new FileReader(tmpFile));
+            assertTrue(reader.readLine().contains("v0.1."));
+            reader.close();
         }
     }
 }

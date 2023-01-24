@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: clone-git-next-tag-run-
+spec:
+  pipelineRef:
+    name: clone-git-next-tag
+  workspaces:
+    - name: shared-data
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Mi
+          volumeMode: Filesystem
+  params:
+    - name: repo-url
+      value: https://github.com/joostvdg/go-demo.git
+    - name: base
+      value: "v2.1.*"

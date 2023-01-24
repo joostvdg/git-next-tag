@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Pattern;
 
@@ -31,7 +34,13 @@ public class GitNextTagCommand implements Runnable {
             description = "path where to execute the git tag command",
             required = false
     )
-    String alternativePath;
+    String alternateSourcePath;
+    
+    @Option(names={"-o", "--outputPath"},
+            description = "path (file) where to output result to, replaces output to STDOUT",
+            required = false
+    )
+    String outputPath;
 
     public static void main(String[] args) throws Exception {
         PicocliRunner.run(GitNextTagCommand.class, args);
@@ -45,16 +54,16 @@ public class GitNextTagCommand implements Runnable {
 
 
         logger.info("baseTag supplied: {}", baseTag);
-        if (alternativePath != null && !alternativePath.isEmpty()) {
-            logger.info("execution path supplied: {}", alternativePath);
+        if (alternateSourcePath != null && !alternateSourcePath.isEmpty()) {
+            logger.info("execution path supplied: {}", alternateSourcePath);
         }
 
         var currentPath = Paths.get("")
                 .toAbsolutePath()
                 .toString();
         var path = currentPath;
-        if (alternativePath != null && !alternativePath.isEmpty()) {
-            path = alternativePath;
+        if (alternateSourcePath != null && !alternateSourcePath.isEmpty()) {
+            path = alternateSourcePath;
         }
 
         // git --no-pager tag --sort="version:refname" --list "v2.1.*"
@@ -64,7 +73,31 @@ public class GitNextTagCommand implements Runnable {
         var nextGitTag = determineNextTag(baseTag, foundTag, verbose);
 
         logger.info("next git tag: {}", nextGitTag);
-        System.out.println(nextGitTag);
+        
+        if (outputPath == null || outputPath.isEmpty()) {
+            System.out.println(nextGitTag);
+        } else {
+            logger.info("output path set, attempting to write output to file: {}", outputPath);
+            try {
+                writeOutputToFile(outputPath, nextGitTag);
+            } catch (IOException e) {
+                logger.error("Could not write output to outputPath ({}): {}", outputPath, e);
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void writeOutputToFile(String outputPath, String nextGitTag) throws IOException {
+        Path path = Paths.get(outputPath);
+        byte[] strToBytes = nextGitTag.getBytes();
+
+        Files.write(path, strToBytes);
+
+        String read = Files.readAllLines(path).get(0);
+        if (!read.equals(nextGitTag)) {
+            var errorMessage = String.format("Could not verify if next tag %s is written to output path %s", nextGitTag, outputPath);
+            throw new IOException(errorMessage);
+        }
     }
 
     private String determineNextTag(String baseTag, String foundTag, boolean verbose) {

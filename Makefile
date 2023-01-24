@@ -26,4 +26,7 @@ build-image-alpine-push:
 	docker buildx build ./build-image -f build-image-alpine/Dockerfile --platform linux/amd64 --tag ghcr.io/joostvdg/maven-graal-ce-build-alpine:0.1.0-m3.8-j19-g22.3 --push
 
 image-push:
-	docker buildx build . --platform linux/amd64 --tag ghcr.io/joostvdg/git-next-tag:0.1.0 --push
+	docker buildx build . --platform linux/amd64,linux/arm64 --tag ghcr.io/joostvdg/git-next-tag:0.2.2 --push
+
+image-push-amd:
+	docker buildx build . --platform linux/amd64 --tag ghcr.io/joostvdg/git-next-tag:0.2.1 --push

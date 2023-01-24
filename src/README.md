@@ -2,9 +2,10 @@
 
 ## TODO
 
-* build native package for other architecture
-* build and publish multi-arch OCI image
 * use in Tekton Task
+  * have an alternative output option
+  * output to file -> can this be the output path?
+  * if not, then we can use a bash task after to collect it
 
 ## Links
 
